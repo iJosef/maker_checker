@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\UserInfo;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
 use App\Models\UserInfoPendingRequest;
@@ -10,7 +11,7 @@ class UserInfoPendingRequestController extends Controller
 {
     public function fetch_all_pending_requests(Request $request)
     {
-        $data = UserInfoPendingRequest::where('created_by', '!=', auth()->user()->id)->with('request_type')->get();
+        $data = UserInfoPendingRequest::where('created_by', '!=', auth()->user()->id)->where('approved_flag', false)->with('request_type')->get();
 
         return response()->json($data, 200);
     }
@@ -106,5 +107,99 @@ class UserInfoPendingRequestController extends Controller
         ];
 
         return response()->json($data, 201);
+    }
+
+
+    public function approve_request(Request $request, $id, $request_type)
+    {
+        $pending_request = UserInfoPendingRequest::where('id', $id)->first();
+
+        if ($pending_request->created_by != auth()->user()->id) {
+            $pending_request->approved_flag = true;
+            $pending_request->approved_by = auth()->user()->id;
+            $pending_request->update();
+
+            if ($request_type == 1) {
+
+                $new_user_info = UserInfo::create([
+                    'first_name'        =>  $pending_request->first_name,
+                    'last_name'         =>  $pending_request->last_name,
+                    'email'             =>  $pending_request->email,
+                    'created_by'        =>  $pending_request->created_by,
+                    'approved_by'       =>  $pending_request->approved_by
+                ]);
+
+                $pending_request->delete();
+
+                $data = [
+                    'status' => 'success',
+                    'message' => 'New User Information created successfully'
+                ];
+
+                return response()->json($data, 201);
+
+            } else if($request_type == 2) {
+
+                $user_info = UserInfo::where('id', $pending_request->user_info_id)->first();
+                $user_info->first_name          = $pending_request->first_name;
+                $user_info->last_name           = $pending_request->last_name;
+                $user_info->email               = $pending_request->email;
+                $user_info->created_by          = $pending_request->created_by;
+                $user_info->approved_by         = $pending_request->approved_by;
+                $user_info->update();
+
+
+                $pending_request->delete();
+
+                $data = [
+                    'status' => 'success',
+                    'message' => 'User Information updated successfully'
+                ];
+
+                return response()->json($data, 200);
+
+            } else if ($request_type == 3) {
+                $user_info = UserInfo::where('id', $pending_request->user_info_id)->delete();
+
+                $data = [
+                    'status' => 'success',
+                    'message' => 'User Information deleted successfully'
+                ];
+
+                return response()->json($data, 200);
+            }
+
+        } else {
+            $data = [
+                'status' => 'error',
+                'message' => 'Cannot approve request created by you.'
+            ];
+
+            return response()->json($data, 401);
+        }
+
+    }
+
+
+    public function decline_request(Request $request, $id)
+    {
+        $pending_request = UserInfoPendingRequest::where('id', $id)->first();
+        if ($pending_request->created_by != auth()->user()->id) {
+            $pending_request->delete();
+
+            $data = [
+                'status' => 'success',
+                'message' => 'Request declined successfully'
+            ];
+
+            return response()->json($data, 200);
+        } else {
+            $data = [
+                'status' => 'error',
+                'message' => 'Cannot decline request created by you.'
+            ];
+
+            return response()->json($data, 401);
+        }
     }
 }

@@ -29,4 +29,7 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::post('/create_new_user_info', [UserInfoPendingRequestController::class, 'create_new_user_info']);
     Route::post('/update_user_info', [UserInfoPendingRequestController::class, 'update_user_info']);
     Route::get('/delete_user_info/{id}/{request_type}', [UserInfoPendingRequestController::class, 'delete_user_info']);
+
+    Route::put('/approve_request/{id}/{request_type}', [UserInfoPendingRequestController::class, 'approve_request']);
+    Route::put('/decline_request/{id}', [UserInfoPendingRequestController::class, 'decline_request']);
 });

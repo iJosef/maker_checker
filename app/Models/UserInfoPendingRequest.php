@@ -14,7 +14,9 @@ class UserInfoPendingRequest extends Model
         'last_name',
         'email',
         'created_by',
-        'request_type_id'
+        'approved_by',
+        'request_type_id',
+        'user_info_id'
     ];
 
     /**
