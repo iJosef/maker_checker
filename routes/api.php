@@ -20,7 +20,7 @@ use App\Http\Controllers\UserInfoPendingRequestController;
 //     return $request->user();
 // });
 
-Route::post('/login', [AuthController::class, 'login']);
+Route::post('/login', [AuthController::class, 'login'])->name('login');
 Route::post('/register', [AuthController::class, 'register']);
 
 Route::group(['middleware' => ['auth:sanctum']], function () {
@@ -31,5 +31,5 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::get('/delete_user_info/{id}/{request_type}', [UserInfoPendingRequestController::class, 'delete_user_info']);
 
     Route::put('/approve_request/{id}/{request_type}', [UserInfoPendingRequestController::class, 'approve_request']);
-    Route::put('/decline_request/{id}', [UserInfoPendingRequestController::class, 'decline_request']);
+    Route::delete('/decline_request/{id}', [UserInfoPendingRequestController::class, 'decline_request']);
 });
