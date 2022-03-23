@@ -28,4 +28,15 @@ class UserInfoPendingRequest extends Model
     {
         return $this->belongsTo(RequestType::class, 'request_type_id');
     }
+
+
+    /**
+     * Get the admin_creator that owns the UserInfoPendingRequest
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function admin_creator()
+    {
+        return $this->belongsTo(User::class, 'created_by');
+    }
 }

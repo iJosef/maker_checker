@@ -23,7 +23,7 @@ class CreateUserInfoPendingRequestsTable extends Migration
             $table->integer('approved_by')->nullable();
             $table->integer('request_type_id')->nullable();
             $table->boolean('approved_flag')->nullable()->default(false);
-            $table->boolean('rejected_flag')->nullable()->default(false);
+            // $table->boolean('rejected_flag')->nullable()->default(false);
             $table->timestamps();
         });
     }
